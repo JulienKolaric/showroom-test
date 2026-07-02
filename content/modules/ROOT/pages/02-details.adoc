@@ -1,0 +1,79 @@
+= IA avec OpenShift Demo Details
+:toc:
+:toc-placement: preamble
+:icons: font
+
+== Proposed Timing
+
+**Opening (5 minutes):**
+
+* NovaTech story and the three key messages
+* Set expectations: live platform, not slides about GPUs
+
+**Technical Demo (20 minutes):**
+
+* Module 1: OpenShift AI dashboard, project context, and inference endpoint
+
+**Closing (5 minutes):**
+
+* Recap pain points and how OpenShift addressed them
+* Q&A and next steps
+
+**Total: ~30 minutes**
+
+== Products and Versions
+
+[cols="3,1"]
+|===
+|Product |Version
+
+|Red Hat OpenShift
+|{ocp_version}
+
+|Red Hat OpenShift AI
+|{openshift_ai_version}
+
+|===
+
+NOTE: If `{openshift_ai_version}` is not injected at deploy time, say "latest supported on this cluster" during the demo.
+
+== Credentials
+
+[cols="2,1,1"]
+|===
+|System/URL |Username |Password
+
+|{openshift_console_url}[OpenShift Console^] |{user} |{password}
+|OpenShift AI Dashboard (right panel tab) |{user} |{password}
+|===
+
+== Environment Tabs
+
+This demo expects the following Showroom tabs:
+
+* **Terminal** - CLI commands if needed
+* **OCP Console** - cluster and project context
+* **OpenShift AI** - dashboards, projects, and serving
+
+== Troubleshooting Common Issues
+
+* **OpenShift AI tab is blank**::
+** Confirm the `rhods-dashboard` route exists and the user has access to the `redhat-ods-applications` namespace.
+
+* **Inference endpoint not ready**::
+** Check the InferenceService or ServingRuntime status in the OpenShift AI dashboard. Warm-up can take a few minutes on first deploy.
+
+* **Model pull is slow**::
+** Mention that production environments often use cached model storage or private registries. For the demo, narrate progress rather than dead air.
+
+== Follow-up Resources
+
+* link:https://docs.redhat.com/en/documentation/red_hat_openshift_ai[Red Hat OpenShift AI documentation^]
+* link:https://docs.redhat.com/en/documentation/openshift_container_platform/{ocp_version}[OpenShift Container Platform {ocp_version} documentation^]
+* link:https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai[Red Hat OpenShift AI product page^]
+
+== Authors and Contact Information
+
+* Demo: showroom-test
+* Author: Julien KOLARIC (jkolaric@redhat.com)
+* For Red Hat Demo Platform issues, use your internal RHDP support channel.

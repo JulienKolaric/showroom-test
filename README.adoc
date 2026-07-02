@@ -1,0 +1,28 @@
+= showroom-test
+
+Friendly demo content for **IA avec OpenShift** on Red Hat OpenShift {ocp_version}.
+
+Built with the link:https://github.com/rhpds/showroom_template_nookbag[Showroom nookbag template^].
+
+== Local preview
+
+[source,bash]
+----
+podman run --rm -p 8080:8080 \
+  -v "$PWD":/antora:Z \
+  docker.io/antora/antora:3.1.10 \
+  --fetch --clean site.yml
+----
+
+Open http://localhost:8080
+
+== Deploy
+
+Point your AgnosticV catalog at:
+
+[source,yaml]
+----
+ocp4_workload_showroom_content_git_repo: https://github.com/JulienKolaric/showroom-test.git
+ocp4_workload_showroom_content_git_repo_ref: main
+ocp4_workload_showroom_content_antora_playbook: site.yml
+----

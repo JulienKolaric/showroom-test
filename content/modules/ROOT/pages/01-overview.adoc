@@ -1,0 +1,64 @@
+= IA avec OpenShift Demo Overview
+:toc:
+:toc-placement: preamble
+:icons: font
+
+Red Hat OpenShift {ocp_version} gives teams a practical runway for AI workloads, from notebooks to model serving, on one platform they already know.
+
+== Background
+
+Meet **NovaTech**, a fictional (but very relatable) software company.
+
+Their developers keep asking for AI features. Leadership keeps asking for ROI. And the platform team is stuck in the middle, juggling GPU requests, security reviews, and "can we just use this random Hugging Face model?" messages in Slack.
+
+NovaTech does not need another side project cluster. They need AI on the platform they already run.
+
+== Problem Breakdown
+
+**Challenge 1: AI sprawl** - Every team picks its own tools, secrets, and deployment pattern.
+
+**Challenge 2: Slow time to demo** - Proving value takes weeks of infra wrangling before anyone sees a chatbot.
+
+**Challenge 3: Production anxiety** - Pilots work on laptops. Production needs RBAC, routes, monitoring, and a support story.
+
+== Solution Overview
+
+OpenShift AI on OpenShift {ocp_version} brings model development, serving, and governance together on the same Kubernetes foundation your operators already manage.
+
+Think of it as: less "build a bespoke ML platform," more "ship AI like you ship apps."
+
+== Business Benefits
+
+* Faster proof points for AI initiatives (days, not months of platform setup)
+* Happier developers with self-service notebooks and serving runtimes
+* Cleaner handoff from experiment to production on OpenShift
+* One operational model instead of a shadow ML stack
+
+== Key Messages
+
+Leave the room with these three ideas:
+
+* **IA avec OpenShift** - AI is a platform capability, not a separate island
+* **Speed with guardrails** - Self-service for devs, policy and RBAC for ops
+* **Same cluster, same skills** - Your team already knows OpenShift; extend it for AI
+
+== Common Customer Questions
+
+**"Do we need a separate AI cluster?"**::
+→ Not for most pilots. Start on existing OpenShift capacity and scale when metrics justify it.
+
+**"What about GPUs?"**::
+→ OpenShift schedules GPU workloads like any other resource. Show the serving runtime and let infra teams size nodes separately.
+
+**"How is this different from DIY on vanilla Kubernetes?"**::
+→ Integrated dashboards, serving runtimes, and Red Hat support for the full stack. Less glue code, fewer 2 a.m. surprises.
+
+**"Can developers break production?"**::
+→ Namespaces, quotas, and RBAC still apply. AI workloads inherit the same guardrails as your apps.
+
+== Presenter Tips
+
+* Keep the tone light. This demo is **friendly and fun**, not a keynote funeral.
+* Pause after the first inference call. Let people see the model respond live.
+* Tie every click back to NovaTech's story: "This is what unblocks their product team."
+* If the audience is executive-heavy, spend more time in Know sections and shorten Show.

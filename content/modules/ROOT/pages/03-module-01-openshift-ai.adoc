@@ -1,0 +1,180 @@
+= Module 1: OpenShift AI in Action
+:source-highlighter: rouge
+:toc: macro
+:toclevels: 2
+
+This module shows how NovaTech goes from "we should do something with AI" to a live inference endpoint on OpenShift {ocp_version}.
+
+== Part 1 — Why AI Belongs on OpenShift
+
+=== Know
+
+_Customer challenge: AI experiments live everywhere except the platform the company already pays for and knows how to operate._
+
+**Business Impact:**
+
+* Data science buys tools. App teams buy other tools. Security sees neither until production.
+* GPU capacity sits idle in one silo while another team queues for access.
+* Every pilot reinvents deployment, routing, and auth.
+
+**Value Proposition:**
+
+OpenShift AI gives NovaTech a familiar home for models: same RBAC, same routes, same GitOps habits, plus dashboards purpose-built for ML workflows.
+
+According to link:https://www.redhat.com/en/technologies/cloud-computing/openshift/openshift-ai[Red Hat OpenShift AI^], teams can develop, deploy, and monitor AI models on the same foundation used for cloud-native applications.
+
+=== Show
+
+**What I say**:
+"NovaTech does not need a parallel universe for AI. They need a lane on the highway they already built. That lane is OpenShift AI."
+
+**What I do**:
+
+. Open the **OpenShift AI** tab in the right panel
+. Log in with `{user}` / `{password}` if prompted
+. Orient the audience to the main areas: projects, workbenches, serving
+
+**What they should notice**:
+
+* A dashboard that looks like part of OpenShift, not a random third-party portal
+* Project-scoped resources, same mental model as `Namespace` in OCP
+* A path from experimentation to serving without leaving the platform
+
+**If asked**:
+
+Q: "Is this a separate product?"::
+A: "OpenShift AI extends the platform you already operate. Same cluster, same operators, same support story."
+
+== Part 2 — Projects and the Developer Experience
+
+=== Know
+
+_Developers do not want a ticket to get a notebook. They want a button._
+
+**Current vs Desired State:**
+
+* Now: "File a request, wait for a VM, install packages, hope it matches prod."
+* Goal: Self-service project, curated runtimes, push to serving when ready.
+
+**Stakeholder Impact:**
+
+* **VP Engineering** cares about speed to market
+* **Platform team** cares about quotas, RBAC, and not becoming the ML help desk
+* **Security** cares about where models and data live
+
+=== Show
+
+**Optional visual**: Simple diagram of Dev → OpenShift AI project → Serving route
+
+**What I say**:
+"This is the moment NovaTech's lead developer stops DMing the platform team and starts actually building."
+
+**What I do**:
+
+. In the OpenShift AI dashboard, open an existing data science project (or the demo project prepared for this environment)
+. Point out workbenches and serving runtimes available in the project
+. Switch briefly to the **OCP Console** tab and show the same project namespace
+
+**What they should notice**:
+
+* The project maps cleanly to a Kubernetes namespace
+* Resource limits and RBAC still apply (guardrails, not chaos)
+* Developers get autonomy without root on the cluster
+
+**Business value callout**:
+"Self-service here does not mean ungoverned. It means governed self-service, which is the only kind that scales."
+
+== Part 3 — Live Inference (The Fun Part)
+
+=== Know
+
+_The demo wins when the audience sees text stream back from a model, not when you explain transformers._
+
+**Why this matters:**
+
+* Stakeholders believe what they can type into
+* A working endpoint turns "AI strategy" into "AI shipping this quarter"
+* Serving on OpenShift reuses routes, TLS, and monitoring patterns teams already know
+
+**Reference needed**: Exact model name and latency metrics for your prepared environment should be validated against your cluster deployment.
+
+=== Show
+
+**What I say**:
+"Alright, less slide-deck, more magic trick. Let's talk to a model running on OpenShift."
+
+**What I do**:
+
+. In OpenShift AI, navigate to **Deployments** or **Serving** (wording may vary by OpenShift AI version)
+. Open the prepared InferenceService or model deployment for this demo
+. Show status **Ready** (or narrate startup if still warming)
+. Copy the inference route or use the integrated test UI
+. Send a short prompt, for example: "Explain why running AI on OpenShift is a good idea in two sentences."
+. Show the response streaming or returning in the UI
+
+**Optional CLI moment** (Terminal tab):
+
+[source,bash]
+----
+curl -k "https://{inference_route}/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "{model_name}",
+    "messages": [{"role": "user", "content": "Say hello from OpenShift AI!"}],
+    "max_tokens": 64
+  }'
+----
+
+**What they should notice**:
+
+* A real HTTP endpoint, not a localhost script
+* Authentication and routing handled like any other OpenShift service
+* The same cluster that runs their apps can run their models
+
+**If asked**:
+
+Q: "Which models are supported?"::
+A: "Serving runtimes support popular open models. Your team pins versions and sources per environment, same as container images."
+
+Q: "What about cost?"::
+A: "You scale nodes and replicas like any workload. Start small, measure utilization, grow with demand."
+
+== Part 4 — From Pilot to Production
+
+=== Know
+
+_Pilots fail when they cannot graduate. OpenShift is the graduation path._
+
+**Business Value:**
+
+* One platform team, one set of playbooks
+* GitOps-friendly manifests for InferenceServices and routes
+* Observability hooks align with existing SRE practices
+
+**Competitive angle (light touch):**
+
+DIY GPU clusters are exciting until someone asks who patches them at 3 a.m. OpenShift AI is the boring-in-a-good-way answer.
+
+=== Show
+
+**What I say**:
+"The pilot is not a throwaway. The manifests you use in the lab are cousins of what you promote to prod."
+
+**What I do**:
+
+. Briefly show a deployment manifest or the OpenShift AI view of the InferenceService configuration (no secrets on screen)
+. Mention namespace isolation, routes, and resource requests as production-ready knobs
+. Return to the three key messages: **IA avec OpenShift**, speed with guardrails, same cluster and skills
+
+**What they should notice**:
+
+* Continuity from demo to operational model
+* No second platform to hire specialists for
+
+== Presenter Wrap-up
+
+* Estimated time for this module: 20 minutes
+* Pause points: after dashboard tour, after first inference response
+* If something fails live, smile, narrate troubleshooting, and lean on the Know story. NovaTech has bad days too.
+
+**Next**: Add more modules with `/showroom-create-demo --continue`, or run `/showroom-verify-content` for a quality pass.

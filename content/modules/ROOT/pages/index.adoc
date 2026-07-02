@@ -1,0 +1,49 @@
+= IA avec OpenShift
+:source-highlighter: rouge
+:toc: macro
+:toclevels: 1
+
+toc::[]
+
+This guide helps presenters deliver a friendly, fun demonstration of AI on Red Hat OpenShift {ocp_version}.
+
+== What This Demo Covers
+
+This demonstration shows how OpenShift turns AI from a science project into something your teams can actually ship:
+
+* A unified platform for models, notebooks, and inference
+* Self-service access for developers without waiting on a GPU ticket queue
+* Enterprise guardrails baked in, not bolted on later
+* A clear path from experiment to production on the same cluster
+
+== Demo Overview
+
+The **Demo Overview** section gives you the business story, presenter tips, and common customer questions.
+
+IMPORTANT: Read it before you present. The fun tone is intentional, but the value props are real.
+
+== Demo Details
+
+The **Demo Details** section is your cheat sheet:
+
+* Timing
+* Products and versions
+* Credentials and placeholders
+* Troubleshooting
+* Follow-up resources
+
+== Demo Modules
+
+Each module uses **Know** and **Show**:
+
+=== Know
+
+Business context, pain points, and why the audience should care.
+
+=== Show
+
+Step-by-step presenter actions, talk track cues, and what the audience should notice.
+
+== Next Steps
+
+Start with the **Demo Overview**, then follow Module 1 in the right panel tabs.

@@ -1,0 +1,6 @@
+* xref:index.adoc[How to Use This Demo Guide]
+* xref:01-overview.adoc[Demo Overview]
+* xref:02-details.adoc[Demo Details]
+
+.Demo Modules
+* xref:03-module-01-openshift-ai.adoc[Module 1: OpenShift AI in Action]
