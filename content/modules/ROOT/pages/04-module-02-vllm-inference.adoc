@@ -1,0 +1,246 @@
+= Module 2: vLLM Inference on OpenShift (Lab CRC)
+:source-highlighter: rouge
+:toc: macro
+:toclevels: 2
+
+NovaTech's platform team wants a concrete example: a small LLM served on OpenShift {ocp_version} with plain Kubernetes manifests, an OpenAI-compatible API, and a chat UI anyone can click.
+
+This module is based on the lab stack in namespace `inference-jko`:
+
+* **vLLM** serving `RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8`
+* **PVC** `model-cache` (10 Gi) for Hugging Face cache
+* **Route** `tinyllama-vllm` exposing port 8000
+* **Chat UI** `vllm-chat-ui` (nginx) proxying `/v1/` to the model
+
+== Part 1 — From Dashboard to "We Own the Manifests"
+
+=== Know
+
+_Module 1 showed the OpenShift AI experience. Module 2 shows the escape hatch that platform teams love: standard OpenShift primitives you can GitOps._
+
+**Why this matters:**
+
+* App teams want an OpenAI-compatible endpoint they can call from code
+* Platform teams want YAML in Git, not click-ops only
+* Labs on CRC (Apple Silicon) can run CPU-quantized models without waiting for a GPU farm
+
+**Lab stack (friendly summary):**
+
+* Image: `vllm/vllm-openai-cpu` (CPU build for ARM64 lab nodes)
+* Model weights pulled once into a PVC, then reused across pod restarts
+* OpenShift Route with a 600s timeout (LLM responses are not instant coffee)
+
+**Value proposition:**
+
+Same cluster, same routes, same `oc` commands. NovaTech ships a chat feature without inventing a new deployment religion.
+
+=== Show
+
+**What I say**:
+"Dashboards are great. Manifests are how your platform team sleeps at night. Let's peek at what we actually deployed."
+
+**What I do**:
+
+. Open the **OCP Console** tab
+. Switch to project/namespace `inference-jko`
+. Open **Workloads → Deployments** and show `tinyllama-vllm`
+. Open **Networking → Routes** and show `tinyllama-vllm` and `vllm-chat-ui`
+. Open **Storage → PersistentVolumeClaims** and show `model-cache` (10 Gi)
+
+**What they should notice**:
+
+* A normal Deployment, not a black box
+* Routes created by OpenShift, TLS included
+* Model cache on PVC so restarts do not re-download the internet
+
+**If asked**:
+
+Q: "Is this production sizing?"::
+A: "This is a lab profile for CRC. Production would tune CPU, memory, GPUs, and HA. The pattern is the same."
+
+== Part 2 — Deploy or Refresh the Stack (Optional)
+
+=== Know
+
+_If the lab is already running, skip to Part 3. If not, a single `oc apply -k` brings it up._
+
+The manifests live in a Kustomize bundle:
+
+* `pvc.yaml` → `model-cache`
+* `deployment.yaml` → vLLM container on port 8000
+* `service.yaml` → cluster DNS `tinyllama-vllm.inference-jko.svc`
+* `route.yaml` → external HTTPS endpoint
+
+A separate bundle adds the chat UI (`vllm-chat-ui` ConfigMap + nginx proxy).
+
+=== Show
+
+**What I say**:
+"Thirty seconds of CLI, then we let the model warm up. Perfect time for a joke about how AI demos are 10% prompting and 90% waiting for readiness probes."
+
+**What I do** (Terminal tab):
+
+. Create namespace if needed:
+
++
+[source,bash]
+----
+oc new-project inference-jko 2>/dev/null || oc project inference-jko
+----
+
+. Apply the vLLM stack (adjust path to your content repo or lab git):
+
++
+[source,bash]
+----
+oc apply -k manifests/inference-jko-vllm/
+oc apply -k manifests/inference-jko-vllm-web/
+----
+
+. Watch rollout (first start can take several minutes while the model loads):
+
++
+[source,bash]
+----
+oc rollout status deployment/tinyllama-vllm -n inference-jko --timeout=600s
+oc get pods,svc,route -n inference-jko
+----
+
+**What they should notice**:
+
+* Readiness probe hits `/health` on port 8000
+* Pod requests ~6 Gi RAM (lab sizing for a 1B quantized model)
+* Two routes: API backend and chat frontend
+
+**Troubleshooting hint**:
+
+If the pod stays `Pending`, check cluster memory. CRC is honest about its limits.
+
+== Part 3 — OpenAI-Compatible API (The Nerd Delight)
+
+=== Know
+
+_vLLM exposes a familiar `/v1/chat/completions` API. Developers plug in the same client libraries they use for other OpenAI-compatible services._
+
+**Business angle:**
+
+NovaTech's app team does not need a custom SDK. They need a URL and a JSON payload.
+
+=== Show
+
+**What I say**:
+"Same API shape your developers already know. Different infrastructure underneath. That's the platform win."
+
+**What I do**:
+
+. Resolve the vLLM route host:
+
++
+[source,bash]
+----
+export VLLM_ROUTE=$(oc get route tinyllama-vllm -n inference-jko -o jsonpath='{.spec.host}')
+echo "https://${VLLM_ROUTE}"
+----
+
+. Call the API (Terminal):
+
++
+[source,bash]
+----
+curl -sk "https://${VLLM_ROUTE}/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "RedHatAI/Llama-3.2-1B-Instruct-quantized.w8a8",
+    "messages": [{"role": "user", "content": "En une phrase, pourquoi vLLM sur OpenShift c'est malin ?"}],
+    "max_tokens": 128,
+    "temperature": 0.7
+  }' | jq -r '.choices[0].message.content'
+----
+
+**What they should notice**:
+
+* JSON response with `choices[0].message.content`
+* HTTPS route terminates at the cluster edge
+* Model name matches the Deployment args
+
+**Business value callout**:
+"This is the integration point for NovaTech's product: any microservice on OpenShift can call this endpoint on the internal service DNS or the external route, with policy in between."
+
+== Part 4 — Chat UI Demo (Click, Type, Smile)
+
+=== Know
+
+_Not everyone lives in `curl`. The lab includes a minimal French chat UI served by nginx, proxying `/v1/` to the vLLM Service._
+
+**Why include a UI:**
+
+* Executives and product owners can try it without a terminal
+* Shows the full path: browser → Route → UI → Service → vLLM
+* Great photo moment for the demo recap
+
+=== Show
+
+**Optional visual**: Simple architecture sketch (browser → Route `vllm-chat-ui` → nginx → Service `tinyllama-vllm:8000`)
+
+**What I say**:
+"Your sales engineer is not running `curl` in front of the CFO. Let's give them a button."
+
+**What I do**:
+
+. Open the chat UI route in a new browser tab:
+
++
+[source,bash]
+----
+oc get route vllm-chat-ui -n inference-jko -o jsonpath='https://{.spec.host}{"\n"}'
+----
+
+. Type a short prompt in French, for example:
++
+"Explique l'IA avec OpenShift comme si tu parlais à un ami curieux."
+
+. Show the response appearing in the chat log
+
+**What they should notice**:
+
+* Page title: *Chat Llama 3.2 1B* / project `inference-jko`
+* UI calls `/v1/chat/completions` through nginx (same API as Part 3)
+* Sub-second to few-second response on CPU lab (set expectations accordingly)
+
+**If asked**:
+
+Q: "Where is the UI code?"::
+A: "A ConfigMap in OpenShift. Fine for a lab. Production would use a proper frontend build pipeline."
+
+== Part 5 — Tie It Back to IA avec OpenShift
+
+=== Know
+
+**Three messages, revisited:**
+
+* **IA avec OpenShift** - Module 1 showed the managed AI experience; Module 2 shows you can also run serving runtimes as first-class workloads
+* **Speed with guardrails** - Namespace, quotas, Routes, Secrets for tokens, all standard OCP
+* **Same cluster, same skills** - `oc`, GitOps, Kustomize, no parallel ML cloud
+
+**Competitive angle (keep it light):**
+
+Building this on generic VMs means you still assemble routing, TLS, storage, and auth yourself. OpenShift hands you the plumbing so you focus on the model and the app.
+
+=== Show
+
+**What I say**:
+"NovaTech started with 'we should do AI.' They now have a dashboard story AND a GitOps story. Pick the lane that fits the team, same platform."
+
+**What I do**:
+
+. Return to **OpenShift AI** tab briefly and contrast with the `inference-jko` project in Console
+. Recap routes and resources in one screen
+. Ask: "Which integration path fits your team first: OpenShift AI workflows or custom vLLM on OpenShift?"
+
+**Presenter wrap-up**:
+
+* Module time: ~15 minutes (plus warm-up if cold start)
+* Best live moment: chat UI prompt in French
+* If inference is slow on CPU, narrate: "Lab tier on CRC. Production moves to GPU nodes and autoscaling."
+
+**Next**: conclusion module, or extend with GPU sizing / KServe comparison in a Module 3.

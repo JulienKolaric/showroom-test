@@ -4,3 +4,4 @@
 
 .Demo Modules
 * xref:03-module-01-openshift-ai.adoc[Module 1: OpenShift AI in Action]
+* xref:04-module-02-vllm-inference.adoc[Module 2: vLLM Inference Lab]

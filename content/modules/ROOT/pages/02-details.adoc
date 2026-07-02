@@ -10,16 +10,17 @@
 * NovaTech story and the three key messages
 * Set expectations: live platform, not slides about GPUs
 
-**Technical Demo (20 minutes):**
+**Technical Demo (35 minutes):**
 
-* Module 1: OpenShift AI dashboard, project context, and inference endpoint
+* Module 1: OpenShift AI dashboard, project context, and inference endpoint (~20 min)
+* Module 2: vLLM lab in `inference-jko`, API curl test, chat UI (~15 min)
 
 **Closing (5 minutes):**
 
 * Recap pain points and how OpenShift addressed them
 * Q&A and next steps
 
-**Total: ~30 minutes**
+**Total: ~45 minutes**
 
 == Products and Versions
 
@@ -45,7 +46,16 @@ NOTE: If `{openshift_ai_version}` is not injected at deploy time, say "latest su
 
 |{openshift_console_url}[OpenShift Console^] |{user} |{password}
 |OpenShift AI Dashboard (right panel tab) |{user} |{password}
+|vLLM API Route `tinyllama-vllm` |n/a (public HTTPS) |n/a
+|Chat UI Route `vllm-chat-ui` |n/a (public HTTPS) |n/a
 |===
+
+Discover route hosts at demo time:
+
+[source,bash]
+----
+oc get route -n inference-jko
+----
 
 == Environment Tabs
 
@@ -65,6 +75,15 @@ This demo expects the following Showroom tabs:
 
 * **Model pull is slow**::
 ** Mention that production environments often use cached model storage or private registries. For the demo, narrate progress rather than dead air.
+
+* **vLLM pod not Ready in `inference-jko`**::
+** First boot downloads model weights into PVC `model-cache`. Check `oc logs deployment/tinyllama-vllm -n inference-jko`. Readiness allows up to ~10 minutes (`initialDelaySeconds: 120`, `failureThreshold: 40`).
+
+* **Chat UI returns error**::
+** Confirm `tinyllama-vllm` Service endpoints are ready before opening `vllm-chat-ui`. The nginx proxy targets `tinyllama-vllm.inference-jko.svc.cluster.local:8000`.
+
+* **HF token secret missing**::
+** Lab manifests expect Secret `hf-secret` with key `HF_TOKEN` for gated model download. Create it in `inference-jko` before deploy if required.
 
 == Follow-up Resources
 

@@ -177,4 +177,4 @@ DIY GPU clusters are exciting until someone asks who patches them at 3 a.m. Open
 * Pause points: after dashboard tour, after first inference response
 * If something fails live, smile, narrate troubleshooting, and lean on the Know story. NovaTech has bad days too.
 
-**Next**: Add more modules with `/showroom-create-demo --continue`, or run `/showroom-verify-content` for a quality pass.
+**Next**: Continue with xref:04-module-02-vllm-inference.adoc[Module 2: vLLM Inference Lab] for the hands-on `inference-jko` stack.
